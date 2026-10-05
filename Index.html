@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bella rose ˖ ݁ 𝜗𝜚˚⋆</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Great+Vibes&family=M+PLUS+Rounded+1c:wght@300;400;500;700;800&family=Pinyon+Script&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js & Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --bg-dream: #FDF4F8;
+            --header-sky: #BFE3F7;
+            --header-pink: #F8BBD0;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --pink-main: #F48FB1;
+            --pink-soft: #F8BBD0;
+            --pink-accent: #E27396;
+            --pink-badge: #FF80AB;
+            --yellow-badge: #FFF59D;
+            --blue-badge: #B39DDB;
+            --text-dark: #6D4C41;
+            --text-muted: #A1887F;
+            --text-light: #8E24AA;
+            --shadow-soft: 0 8px 24px rgba(244, 143, 177, 0.18);
+            --border-round: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Fredoka', 'M PLUS Rounded 1c', 'Quicksand', sans-serif;
+            background: #F8C8DC;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 205, 210, 0.8), transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(225, 190, 231, 0.8), transparent 30%),
+                linear-gradient(135deg, #FDE0DC 0%, #E1BEE7 50%, #B3E5FC 100%);
+            background-attachment: fixed;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        /* Phone frame layout */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 92vh;
+            max-height: 900px;
+            background: var(--bg-dream);
+            border-radius: 36px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15), 0 0 0 10px rgba(255, 255, 255, 0.7);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Top Navbar */
+        .top-bar {
+            height: 52px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            border-bottom: 2px solid #F8BBD0;
+            z-index: 10;
+        }
+
+        .top-bar .title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 26px;
+            color: var(--pink-accent);
+            font-weight: bold;
+        }
+
+        .top-bar .nav-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .top-bar .action-btn {
+            background: #FFF0F5;
+            border: 1.5px solid #F8BBD0;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #D81B60;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Screen Wrapper */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            padding-bottom: 80px;
+            scrollbar-width: none;
+        }
+        .content-area::-webkit-scrollbar { display: none; }
+
+        .screen {
+            display: none;
+            padding: 16px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Bottom Floating Dock Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            height: 62px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(244, 143, 177, 0.3);
+            border: 2px solid #FFF;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #C2185B;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            opacity: 0.6;
+        }
+
+        .nav-item span.icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .nav-item.active {
+            opacity: 1;
+            transform: scale(1.15);
+            color: #D81B60;
+        }
+
+        /* Profile Banner Section */
+        .banner-header {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #B2EBF2 0%, #E1BEE7 100%);
+            padding: 15px;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 16px;
+        }
+
+        .banner-header .avatar-wrap {
+            position: relative;
+            width: 86px;
+            height: 86px;
+            margin: 0 auto 8px;
+        }
+
+        .banner-header .avatar-img {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #FFF;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .banner-header h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 36px;
+            color: #FFF;
+            text-shadow: 1px 2px 4px rgba(0,0,0,0.15);
+            margin-top: -5px;
+        }
+
+        .banner-header .handle {
+            font-size: 12px;
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .tag-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .pill {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #8E24AA;
+            font-weight: 600;
+        }
+
+        /* Generic Soft Aesthetic Card */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-round);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(248, 187, 208, 0.5);
+            position: relative;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #D81B60;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Inputs & Buttons */
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            border: 1.5px solid #F8BBD0;
+            background: #FFF;
+            font-family: inherit;
+            font-size: 13px;
+            color: var(--text-dark);
+            outline: none;
+            margin-bottom: 10px;
+            transition: border 0.2s;
+        }
+        input:focus { border-color: var(--pink-main); }
+
+        .btn {
+            background: linear-gradient(135deg, #F48FB1 0%, #CE93D8 100%);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(244, 143, 177, 0.4);
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.98); }
+
+        /* Calorie Tracker Visual Ring */
+        .calorie-ring-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+
+        .ring-stats {
+            text-align: center;
+        }
+
+        .ring-stats .val {
+            font-size: 22px;
+            font-weight: 700;
+            color: #D81B60;
+        }
+
+        .ring-stats .lbl {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Habit Items */
+        .habit-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #FFF0F5;
+            padding: 10px 14px;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            border: 1px solid #F8BBD0;
+        }
+
+        .habit-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .habit-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #F48FB1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: #FFF;
+        }
+
+        .habit-checkbox.checked {
+            background: #F48FB1;
+            color: white;
+        }
+
+        /* Polaroid Photo Gallery */
+        .polaroid-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .polaroid {
+            background: #FFF;
+            padding: 8px 8px 20px 8px;
+            border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transform: rotate(-1deg);
+            text-align: center;
+        }
+
+        .polaroid:nth-child(even) { transform: rotate(1deg); }
+
+        .polaroid img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 6px;
+        }
+
+        .polaroid span {
+            font-family: 'Pinyon Script', cursive;
+            font-size: 18px;
+            color: #8E24AA;
+        }
+
+        /* Note Cards */
+        .note-card {
+            background: #FFFDE7;
+            padding: 12px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            border-left: 4px solid #FFF59D;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        /* YouTube Embed Box */
+        .video-card {
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .video-card iframe {
+            width: 100%;
+            height: 200px;
+            border: none;
+        }
+
+        /* Onboarding Screen */
+        .welcome-card {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .welcome-card h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 42px;
+            color: #D81B60;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Top Bar Navigation -->
+    <div class="top-bar">
+        <div class="title">bella rose 𝜗𝜚</div>
+        <div class="nav-actions">
+            <button class="action-btn" onclick="showScreen('profile')">Profile</button>
+        </div>
+    </div>
+
+    <!-- Main Dynamic Content Wrapper -->
+    <div class="content-area">
+
+        <!-- 0. ONBOARDING / SIGN UP SCREEN -->
+        <div id="screen-welcome" class="screen active">
+            <div class="card welcome-card">
+                <h1>welcome darling ˖ ݁ 𝜗𝜚</h1>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">customize your pink dream space</p>
+                
+                <input type="text" id="setup-name" placeholder="your name (e.g. sophie ✩)">
+                <input type="text" id="setup-handle" placeholder="handle (e.g. @lemkasa)">
+                <input type="text" id="setup-bio" placeholder="short bio / favorite quotes">
+                <input type="number" id="setup-calorie-goal" placeholder="daily calorie target (e.g. 1800)">
+                <input type="number" id="setup-weight-goal" placeholder="target weight (kg/lbs)">
+                <input type="text" id="setup-avatar" placeholder="avatar image URL (optional)">
+
+                <button class="btn" onclick="saveProfileSetup()">enter my space ✧</button>
+            </div>
+        </div>
+
+        <!-- 1. PROFILE / HOME DASHBOARD -->
+        <div id="screen-profile" class="screen">
+            <div class="banner-header">
+                <div class="avatar-wrap">
+                    <img id="profile-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" class="avatar-img" alt="Avatar">
+                </div>
+                <h2 id="profile-name">sophie ✩</h2>
+                <div class="handle" id="profile-handle">@lemkasa</div>
+                <div class="tag-pills">
+                    <span class="pill">cute-core</span>
+                    <span class="pill">hyperfem</span>
+                    <span class="pill">pilates girl</span>
+                </div>
+            </div>
+
+            <!-- Streak Counter -->
+            <div class="card" style="background: linear-gradient(135deg, #FFF 0%, #FFF0F5 100%);">
+                <div class="card-header">
+                    <div class="card-title">✦ current streak</div>
+                    <span style="font-size:20px;">🔥</span>
+                </div>
+                <div style="text-align: center;">
+                    <span id="streak-count" style="font-size: 38px; font-weight: 800; color: #D81B60;">0</span>
+                    <p style="font-size: 11px; color: var(--text-muted);">consecutive active days!</p>
+                </div>
+            </div>
+
+            <!-- About Me Card -->
+            <div class="card">
+                <div class="card-title">:: about me</div>
+                <p id="profile-bio" style="font-size: 12px; color: var(--text-dark); margin-top: 6px; line-height: 1.5;">
+                    welcome to my dreamy pink space where hearts glow and stars giggle ✧
+                </p>
+            </div>
+        </div>
+
+        <!-- 2. CALORIE TRACKER -->
+        <div id="screen-calories" class="screen">
+            <div class="card">
+                <div class="card-title">🌸 daily calories</div>
+                <div class="calorie-ring-box">
+                    <div class="ring-stats">
+                        <div class="val" id="cal-eaten">0</div>
+                        <div class="lbl">eaten</div>
+                    </div>
+                    <div style="width: 100px; height: 100px;">
+                        <canvas id="calorieChart"></canvas>
+                    </div>
+                    <div class="ring-stats">
+                        <div class="val" id="cal-remaining">1800</div>
+                        <div class="lbl">remaining</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">✦ log food</div>
+                <input type="text" id="food-name" placeholder="what did you eat? (e.g. matcha latte)">
+                <input type="number" id="food-cals" placeholder="calories (e.g. 150)">
+                <button class="btn" onclick="addCalorieEntry()">add entry 𝜗𝜚</button>
+            </div>
+
+            <div class="card">
+                <div class="card-title">:: today's log</div>
+                <div id="calorie-list" style="font-size: 12px;"></div>
+            </div>
+        </div>
+
+        <!-- 3. HABIT TRACKER -->
+        <div id="screen-habits" class="screen">
+            <div class="card">
+                <div class="card-title">🎀 habit streak tracker</div>
+                <div id="habit-list"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">✦ add new habit</div>
+                <input type="text" id="new-habit-input" placeholder="e.g. drink 2L water, pilates...">
+                <button class="btn" onclick="addNewHabit()">add habit ✨</button>
+            </div>
+        </div>
+
+        <!-- 4. BODY & PROGRESS GRAPHS -->
+        <div id="screen-progress" class="screen">
+            <!-- Progress Photos -->
+            <div class="card">
+                <div class="card-title">📸 progress gallery</div>
+                <div class="polaroid-grid" id="polaroid-container">
+                    <div class="polaroid">
+                        <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=300&q=80" alt="Progress">
+                        <span>day 1 ✧</span>
+                    </div>
+                </div>
+                <input type="text" id="photo-url" placeholder="paste photo image URL..." style="margin-top: 10px;">
+                <input type="text" id="photo-label" placeholder="caption (e.g. week 2)">
+                <button class="btn" onclick="addProgressPhoto()">add polaroid 🩰</button>
+            </div>
+
+            <!-- Body Measurements & Weight Charts -->
+            <div class="card">
+                <div class="card-title">📈 weight loss & body metrics</div>
+                <select id="metric-select" onchange="renderBodyChart()">
+                    <option value="weight">Weight (kg/lbs)</option>
+                    <option value="bmi">BMI Index</option>
+                    <option value="waist">Waist (in/cm)</option>
+                    <option value="glutes">Glutes (in/cm)</option>
+                    <option value="chest">Chest (in/cm)</option>
+                    <option value="arms">Upper Arm (in/cm)</option>
+                    <option value="thighs">Upper Thigh (in/cm)</option>
+                    <option value="calves">Calf (in/cm)</option>
+                </select>
+                <div style="height: 180px;">
+                    <canvas id="bodyMetricChart"></canvas>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <input type="number" id="metric-val" placeholder="value" style="margin-bottom:0;">
+                    <button class="btn" style="width: auto;" onclick="addMetricData()">log</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. WORKOUT YOUTUBE VAULT -->
+        <div id="screen-workouts" class="screen">
+            <div class="card">
+                <div class="card-title">🩰 workout vault</div>
+                <input type="text" id="yt-link" placeholder="paste YouTube video link...">
+                <input type="text" id="yt-title" placeholder="title (e.g. 15 min waist workout)">
+                <button class="btn" onclick="addWorkoutVideo()">add video 🎬</button>
+            </div>
+
+            <div id="workout-list"></div>
+        </div>
+
+        <!-- 6. JOURNAL / NOTEPAD -->
+        <div id="screen-notes" class="screen">
+            <div class="card">
+                <div class="card-title">📜 dreamy notepad</div>
+                <textarea id="note-text" rows="3" placeholder="write your thoughts, goals, or reflections..."></textarea>
+                <button class="btn" onclick="addNote()">save note ✧</button>
+            </div>
+
+            <div id="notes-list"></div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Dock Floating Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showScreen('profile', this)">
+            <span class="icon">𝜗𝜚</span>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('calories', this)">
+            <span class="icon">🌸</span>
+            <span>Cals</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('habits', this)">
+            <span class="icon">✦</span>
+            <span>Habits</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('progress', this)">
+            <span class="icon">🩰</span>
+            <span>Graphs</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('workouts', this)">
+            <span class="icon">🎀</span>
+            <span>Workouts</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('notes', this)">
+            <span class="icon">📜</span>
+            <span>Notes</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Application State ---
+    let appState = {
+        profile: { name: 'sophie ✩', handle: '@lemkasa', bio: 'welcome to my dreamy pink space...', calorieGoal: 1800, weightGoal: 50, avatar: '' },
+        streak: 0,
+        calories: [],
+        habits: [
+            { id: 1, name: 'Drink 2L Water 🌸', completed: false },
+            { id: 2, name: '10 Min Stretch 🩰', completed: false },
+            { id: 3, name: 'Skincare Routine ✨', completed: false }
+        ],
+        bodyData: {
+            weight: [58, 57.5, 57, 56.2],
+            bmi: [22, 21.8, 21.5, 21.2],
+            waist: [26, 25.8, 25.5],
+            glutes: [36, 36.2, 36.5],
+            chest: [34, 34, 34],
+            arms: [10, 10, 9.8],
+            thighs: [20, 19.8, 19.5],
+            calves: [13, 13, 12.9]
+        },
+        photos: [],
+        workouts: [],
+        notes: []
+    };
+
+    // Load LocalStorage
+    function loadData() {
+        const saved = localStorage.getItem('bella_rose_state');
+        if (saved) {
+            appState = JSON.parse(saved);
+        }
+    }
+
+    function saveData() {
+        localStorage.setItem('bella_rose_state', JSON.stringify(appState));
+    }
+
+    // Navigation Logic
+    function showScreen(screenId, navEl) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(`screen-${screenId}`).classList.add('active');
+
+        if (navEl) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            navEl.classList.add('active');
+        }
+
+        if (screenId === 'calories') initCalorieChart();
+        if (screenId === 'progress') renderBodyChart();
+    }
+
+    // Save Setup Profile
+    function saveProfileSetup() {
+        const name = document.getElementById('setup-name').value;
+        const handle = document.getElementById('setup-handle').value;
+        const bio = document.getElementById('setup-bio').value;
+        const cals = document.getElementById('setup-calorie-goal').value;
+        const avatar = document.getElementById('setup-avatar').value;
+
+        if (name) appState.profile.name = name;
+        if (handle) appState.profile.handle = handle;
+        if (bio) appState.profile.bio = bio;
+        if (cals) appState.profile.calorieGoal = parseInt(cals);
+        if (avatar) appState.profile.avatar = avatar;
+
+        updateProfileUI();
+        saveData();
+        showScreen('profile');
+    }
+
+    function updateProfileUI() {
+        document.getElementById('profile-name').innerText = appState.profile.name;
+        document.getElementById('profile-handle').innerText = appState.profile.handle;
+        document.getElementById('profile-bio').innerText = appState.profile.bio;
+        if (appState.profile.avatar) {
+            document.getElementById('profile-avatar').src = appState.profile.avatar;
+        }
+        document.getElementById('streak-count').innerText = appState.streak;
+    }
+
+    // Calories Logic
+    let calChartInstance = null;
+    function initCalorieChart() {
+        const totalEaten = appState.calories.reduce((acc, curr) => acc + curr.cals, 0);
+        const goal = appState.profile.calorieGoal || 1800;
+        const remaining = Math.max(0, goal - totalEaten);
+
+        document.getElementById('cal-eaten').innerText = totalEaten;
+        document.getElementById('cal-remaining').innerText = remaining;
+
+        const ctx = document.getElementById('calorieChart').getContext('2d');
+        if (calChartInstance) calChartInstance.destroy();
+
+        calChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [totalEaten, remaining],
+                    backgroundColor: ['#F48FB1', '#F8BBD0'],
+                    borderWidth: 0
+                }]
+            },
+            options: { cutout: '75%', plugins: { tooltip: { enabled: false } } }
+        });
+
+        renderCalorieList();
+    }
+
+    function addCalorieEntry() {
+        const name = document.getElementById('food-name').value;
+        const cals = parseInt(document.getElementById('food-cals').value);
+        if (name && cals) {
+            appState.calories.push({ name, cals });
+            document.getElementById('food-name').value = '';
+            document.getElementById('food-cals').value = '';
+            saveData();
+            initCalorieChart();
+        }
+    }
+
+    function renderCalorieList() {
+        const list = document.getElementById('calorie-list');
+        list.innerHTML = appState.calories.map(item => `
+            <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed #F8BBD0;">
+                <span>${item.name}</span>
+                <font color="#D81B60"><b>+${item.cals} kcal</b></font>
+            </div>
+        `).join('');
+    }
+
+    // Habits Logic
+    function renderHabits() {
+        const container = document.getElementById('habit-list');
+        container.innerHTML = appState.habits.map((habit, idx) => `
+            <div class="habit-item">
+                <div class="habit-info">
+                    <div class="habit-checkbox ${habit.completed ? 'checked' : ''}" onclick="toggleHabit(${idx})">
+                        ${habit.completed ? '✓' : ''}
+                    </div>
+                    <span style="${habit.completed ? 'text-decoration:line-through; opacity:0.6;' : ''}">${habit.name}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function toggleHabit(idx) {
+        appState.habits[idx].completed = !appState.habits[idx].completed;
+        checkStreak();
+        saveData();
+        renderHabits();
+    }
+
+    function checkStreak() {
+        const allDone = appState.habits.length > 0 && appState.habits.every(h => h.completed);
+        if (allDone) {
+            appState.streak += 1;
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        }
+        document.getElementById('streak-count').innerText = appState.streak;
+    }
+
+    function addNewHabit() {
+        const val = document.getElementById('new-habit-input').value;
+        if (val) {
+            appState.habits.push({ id: Date.now(), name: val, completed: false });
+            document.getElementById('new-habit-input').value = '';
+            saveData();
+            renderHabits();
+        }
+    }
+
+    // Body Chart Logic
+    let bodyChartInstance = null;
+    function renderBodyChart() {
+        const metric = document.getElementById('metric-select').value;
+        const dataPoints = appState.bodyData[metric] || [];
+
+        const ctx = document.getElementById('bodyMetricChart').getContext('2d');
+        if (bodyChartInstance) bodyChartInstance.destroy();
+
+        bodyChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dataPoints.map((_, i) => `Entry ${i + 1}`),
+                datasets: [{
+                    label: metric.toUpperCase(),
+                    data: dataPoints,
+                    borderColor: '#E27396',
+                    backgroundColor: 'rgba(244, 143, 177, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    function addMetricData() {
+        const metric = document.getElementById('metric-select').value;
+        const val = parseFloat(document.getElementById('metric-val').value);
+        if (val) {
+            if (!appState.bodyData[metric]) appState.bodyData[metric] = [];
+            appState.bodyData[metric].push(val);
+            document.getElementById('metric-val').value = '';
+            saveData();
+            renderBodyChart();
+        }
+    }
+
+    // Progress Photo Logic
+    function addProgressPhoto() {
+        const url = document.getElementById('photo-url').value;
+        const label = document.getElementById('photo-label').value;
+        if (url) {
+            appState.photos.push({ url, label: label || 'progress ✧' });
+            document.getElementById('photo-url').value = '';
+            document.getElementById('photo-label').value = '';
+            saveData();
+            renderPhotos();
+        }
+    }
+
+    function renderPhotos() {
+        const container = document.getElementById('polaroid-container');
+        container.innerHTML = appState.photos.map(p => `
+            <div class="polaroid">
+                <img src="${p.url}" alt="Progress Photo">
+                <span>${p.label}</span>
+            </div>
+        `).join('');
+    }
+
+    // YouTube Workouts
+    function addWorkoutVideo() {
+        const link = document.getElementById('yt-link').value;
+        const title = document.getElementById('yt-title').value;
+        if (link) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = link.match(regExp);
+            const videoId = (match && match[2].length === 11) ? match[2] : null;
+
+            if (videoId) {
+                appState.workouts.push({ id: videoId, title: title || 'Workout Video 🩰' });
+                document.getElementById('yt-link').value = '';
+                document.getElementById('yt-title').value = '';
+                saveData();
+                renderWorkouts();
+            }
+        }
+    }
+
+    function renderWorkouts() {
+        const container = document.getElementById('workout-list');
+        container.innerHTML = appState.workouts.map(w => `
+            <div class="card">
+                <div class="card-title">${w.title}</div>
+                <div class="video-card">
+                    <iframe src="https://www.youtube.com/embed/${w.id}" allowfullscreen></iframe>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Notes Logic
+    function addNote() {
+        const text = document.getElementById('note-text').value;
+        if (text) {
+            appState.notes.push({ id: Date.now(), text, date: new Date().toLocaleDateString() });
+            document.getElementById('note-text').value = '';
+            saveData();
+            renderNotes();
+        }
+    }
+
+    function renderNotes() {
+        const container = document.getElementById('notes-list');
+        container.innerHTML = appState.notes.map(n => `
+            <div class="note-card">
+                <div style="font-size:10px; color:var(--text-muted); margin-bottom:4px;">${n.date}</div>
+                <div style="font-size:13px; line-height:1.4;">${n.text}</div>
+            </div>
+        `).join('');
+    }
+
+    // Initialization
+    window.onload = () => {
+        loadData();
+        updateProfileUI();
+        renderHabits();
+        renderPhotos();
+        renderWorkouts();
+        renderNotes();
+    };
+</script>
+</body>
+</html>
